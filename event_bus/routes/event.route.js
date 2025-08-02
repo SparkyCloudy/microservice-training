@@ -5,13 +5,14 @@ const router = express.Router();
 const types = {
   product: ['http://localhost:3002/event/products'],
   user: ['http://localhost:3002/event/users'],
-  transaction: ['http://localhost:3001/event/transactions'],
+  transaction: ['http://localhost:3001/event/transactions', "http://localhost:3012/event/transactions"],
   transactionStock: ['http://localhost:3001/event/transactions/stock'],
 };
 
 router.post('/events', async (req, res) => {
   const event = req.body;
   let urls;
+  console.log(event);
   
   // Example: event.type is 'product' or 'user'
   if (event.type && types[event.type]) {

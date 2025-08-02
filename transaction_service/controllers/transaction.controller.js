@@ -1,25 +1,6 @@
 const db = require('../models');
 const axios = require('axios');
 
-exports.getAll = async (req, res) => {
-  try {
-    const data = await db.Transaction.findAll();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({error: err.message});
-  }
-};
-
-exports.getById = async (req, res) => {
-  try {
-    const transaction = await db.Transaction.findByPk(req.params.id);
-    if (!transaction) return res.status(404).json({error: 'Transaksi tidak ditemukan'});
-    res.json(transaction);
-  } catch (err) {
-    res.status(500).json({error: err.message});
-  }
-};
-
 exports.create = async (req, res) => {
   try {
     const {userId, productId, quantity} = req.body;
@@ -49,6 +30,10 @@ exports.create = async (req, res) => {
     // Send event to event bus
     await axios.post('http://localhost:3000/events', {
       type: 'transactionStock', action: 'delete', data: transaction
+    });
+    
+    await axios.post('http://localhost:3000/events', {
+      type: 'transaction', action: 'add', data: transaction
     });
     
     res.status(201).json(transaction);
