@@ -1,5 +1,6 @@
 const db = require('../models');
 const User = db.User;
+const axios = require('axios');
 
 exports.getAll = async (req, res) => {
   try {
@@ -23,6 +24,12 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const user = await User.create(req.body);
+    
+    // Send event to event bus
+    await axios.post('http://localhost:3000/events', {
+      type: 'user', action: 'add', data: user
+    });
+    
     res.status(201).json(user);
   } catch (err) {
     res.status(500).json({error: err.message});

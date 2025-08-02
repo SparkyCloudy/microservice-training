@@ -1,11 +1,9 @@
 const db = require('../models');
-const Transaction = db.Transaction;
-const userService = require('../services/user.service');
-const productService = require('../services/product.service');
+const axios = require('axios');
 
 exports.getAll = async (req, res) => {
   try {
-    const data = await Transaction.findAll();
+    const data = await db.Transaction.findAll();
     res.json(data);
   } catch (err) {
     res.status(500).json({error: err.message});
@@ -14,7 +12,7 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const transaction = await Transaction.findByPk(req.params.id);
+    const transaction = await db.Transaction.findByPk(req.params.id);
     if (!transaction) return res.status(404).json({error: 'Transaksi tidak ditemukan'});
     res.json(transaction);
   } catch (err) {
@@ -27,8 +25,8 @@ exports.create = async (req, res) => {
     const {userId, productId, quantity} = req.body;
     
     // Panggil user_service & product_service
-    const user = await userService.getUserById(userId);
-    const product = await productService.getProductById(productId);
+    const user = await db.User.findByPk(userId);
+    const product = await db.Product.findByPk(productId);
     
     if (!user || !product) {
       return res.status(400).json({error: 'User atau Product tidak valid'});
@@ -36,8 +34,21 @@ exports.create = async (req, res) => {
     
     const totalPrice = product.price * quantity;
     
-    const transaction = await Transaction.create({
-      userId, productId, quantity, totalPrice
+    const newTransaction = {
+      UserId: user.id,
+      ProductId: product.id,
+      quantity: quantity,
+      totalPrice: totalPrice,
+    };
+    
+    const transaction = await db.Transaction.create(newTransaction);
+    
+    product.stock -= transaction.quantity;
+    await product.save();
+    
+    // Send event to event bus
+    await axios.post('http://localhost:3000/events', {
+      type: 'transactionStock', action: 'delete', data: transaction
     });
     
     res.status(201).json(transaction);
@@ -48,7 +59,7 @@ exports.create = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const deleted = await Transaction.destroy({where: {id: req.params.id}});
+    const deleted = await db.Transaction.destroy({where: {id: req.params.id}});
     if (deleted === 0) return res.status(404).json({error: 'Transaksi tidak ditemukan'});
     res.json({message: 'Transaksi dihapus'});
   } catch (err) {

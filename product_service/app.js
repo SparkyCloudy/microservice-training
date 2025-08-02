@@ -1,13 +1,15 @@
 const express = require('express');
 const sequelize = require('./configs/db');
 const db = require('./models');
-const app = express();
 const productRoutes = require('./routes/product.route');
+const eventRoutes = require('./routes/event.route');
+const app = express();
 
 app.use(express.json());
 app.get('/', (req, res) => res.send('API aktif!'));
 
 // tambahkan routing kamu dibawah sini
+app.use(eventRoutes);
 app.use('/api/products', productRoutes);
 
 // Koneksi ke database

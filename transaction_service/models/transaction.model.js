@@ -1,8 +1,14 @@
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define("Transaction", {
+  
+  const table = sequelize.define("Transaction", {
     quantity: DataTypes.INTEGER,
-    totalPrice: DataTypes.INTEGER,
-    userId: DataTypes.INTEGER,
-    productId: DataTypes.INTEGER
+    totalPrice: DataTypes.INTEGER
   });
+  
+  table.associate = (db) => {
+    table.belongsTo(db.User);
+    table.belongsTo(db.Product);
+  }
+  
+  return table;
 };
