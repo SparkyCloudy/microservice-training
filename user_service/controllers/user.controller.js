@@ -1,5 +1,5 @@
-const db = require('../models');
-const User = db.User;
+const {db} = require('../configs');
+const User = db.models.User;
 const axios = require('axios');
 
 exports.getAll = async (req, res) => {
@@ -38,10 +38,11 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const [updated] = await User.update(req.body, {
-      where: {id: req.params.id}
-    });
-    if (updated === 0) return res.status(404).json({error: 'User tidak ditemukan'});
+    const user = await User.findByPk(req.body.id);
+    if (!user) return res.status(404).json({error: 'User tidak ditemukan'});
+    
+    await user.set(req.body);
+    await user.save();
     res.json({message: 'User diperbarui'});
   } catch (err) {
     res.status(500).json({error: err.message});
@@ -50,10 +51,10 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const deleted = await User.destroy({
-      where: {id: req.params.id}
-    });
-    if (deleted === 0) return res.status(404).json({error: 'User tidak ditemukan'});
+    const user = await User.findByPk(req.body.id);
+    if (!user) return res.status(404).json({error: 'User tidak ditemukan'});
+    
+    await user.destroy();
     res.json({message: 'User dihapus'});
   } catch (err) {
     res.status(500).json({error: err.message});
