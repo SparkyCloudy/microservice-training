@@ -1,8 +1,8 @@
-const db = require('../models');
+const {db: {models}} = require('../configs');
 
 exports.getAll = async (req, res) => {
   try {
-    const data = await db.Transaction.findAll();
+    const data = await models.Transaction.findAll();
     res.json(data);
   } catch (err) {
     res.status(500).json({error: err.message});
@@ -11,7 +11,7 @@ exports.getAll = async (req, res) => {
 
 exports.getById = async (req, res) => {
   try {
-    const transaction = await db.Transaction.findByPk(req.params.id);
+    const transaction = await models.Transaction.findByPk(req.params.id);
     if (!transaction) return res.status(404).json({error: 'Transaksi tidak ditemukan'});
     res.json(transaction);
   } catch (err) {
