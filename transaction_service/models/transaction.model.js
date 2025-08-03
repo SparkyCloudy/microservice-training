@@ -1,14 +1,13 @@
-module.exports = (sequelize, DataTypes) => {
-  
-  const table = sequelize.define("Transaction", {
-    quantity: DataTypes.INTEGER,
-    totalPrice: DataTypes.INTEGER
-  });
-  
-  table.associate = (db) => {
-    table.belongsTo(db.User);
-    table.belongsTo(db.Product);
+const {Model, DataTypes} = require("sequelize");
+const {db} = require("../configs");
+
+class Transaction extends Model {
+}
+
+Transaction.init({
+  quantity: {
+    type: DataTypes.INTEGER, allowNull: false
+  }, totalPrice: {
+    type: DataTypes.INTEGER, allowNull: false
   }
-  
-  return table;
-};
+}, {sequelize: db});

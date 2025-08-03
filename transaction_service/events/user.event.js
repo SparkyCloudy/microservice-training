@@ -1,7 +1,7 @@
-const db = require('../models');
+const {db: {models}} = require('../configs');
 
 exports.saveUser = async (req, res) => {
   const user = req.body.data;
-  await db.User.create(user);
+  await models.User.create(user);
   res.send({status: 'User Saved', data: user});
 };
