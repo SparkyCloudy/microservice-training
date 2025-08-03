@@ -1,12 +1,12 @@
-// product_service/events/transaction.event.js
-const db = require('../models');
+const {db} = require('../configs');
+const Product = db.models.Product;
 
 exports.decreaseStock = async (req, res) => {
   try {
     const transaction = req.body;
     
     // Retrieve product
-    const product = await db.Product.findByPk(transaction.ProductId);
+    const product = await Product.findByPk(transaction.ProductId);
     if (!product) {
       return res.status(404).json({error: 'Product not found'});
     }
